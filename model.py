@@ -1,44 +1,40 @@
-electric_constant = 8.9918e9
-""" Электрическая постоянная в законе Кулона"""
+"""Модуль физической модели.
+Вычисляет физические координаты частицы в каждый момент времени, в соответствие
+с уравнением движения.  
+"""
+import math
+from constants import UNIT_CHARGE
+from vis import *
 
-def calculate_force(particle, electric_particles, fields):
-    """Вычисляет силу, действующую на тело.
-    Параметры:
-    **particle** - частица, для которой нужно вычислить действующую силу.  
-    **electric_particles** - список обЪектов, которые воздействуют на тело.
-    **fields** - значения перпендикулярных электрических и магнитного полей в виде:
-    [Bz, Ey]
-    """
-
-    particle.Fx = particle.Fy = 0
-    for particles in electric_particles:
-        for partic in particles:
-            if partic == particle:
-                continue  # тело не действует силой Кулона на само себя!
-            r =((particle.x - partic.y)**2 +(particle.y - partic.y)**2)**0.5
-            particle.Fx += electric_constant * particle.q * partic.q * (particle.x - partic.x) / (r ** 3)
-            particle.Fy += electric_constant * particle.q * partic.q * (particle.y - partic.y) / (r ** 3)
-    w_b = particle.q * fields[0] / particle.m  # ларморовская частота
-    particle.Fx += w_b * particle.Vy * particle.m
-    particle.Fy += particle.q * fields[1] - w_b * particle.Vx * particle.m
-    if particle.fixed:
-        particle.Fx = particle.Fy = 0
-        particle.Vx = particle.Vy = 0
+def calculate_larmour_frequency(particle, fields):
+    """Расчитывает ларморовскую частоту частицы в данном магнитном поле.  """
+    particle.w_b = UNIT_CHARGE*particle.q*fields[0]/particle.m
         
-def move_electric_particles(particle, dt):
-    """Перемещает частицу в соответствие с действующей на него силой.
+def move_electric_particles(particle, fields, t):
+    """Перемещает частицу в соответствие с уравнением движения.
     Параметры:
     **particle** - частицу, которую нужно 
     """
 
-    ax = particle.Fx/particle.m
-    particle.x += particle.Vx * dt + ax * dt ** 2 / 2
-    particle.Vx += ax*dt
-    ay = particle.Fy / particle.m
-    particle.y += particle.Vy * dt + ay * dt ** 2 / 2
-    particle.Vy += ay * dt
-
-def recalculate_electric_particles_position(electric_particles, fields, dt):
+    if fields[0] != 0:
+        V_drift = fields[1]/fields[0]
+    w_b = particle.w_b
+    x0 = particle.x0
+    y0 = particle.y0
+    V0x = particle.V0x
+    V0y = particle.V0y
+    V0 = (V0x**2 + V0y**2) ** 0.5
+    particle.previous_coordinates.append([particle.x, particle.y])
+    t -= particle.start_time
+    #Записываем в явном виде решение уравнения движения
+    if w_b != 0:
+        particle.x = (V_drift)*t - ((V_drift-V0)/abs(w_b))*math.sin(abs(w_b)*t) - (V0y/w_b)*math.cos(abs(w_b)*t) + x0 + V0y/w_b
+        particle.y = ((V_drift-V0)/w_b) * (1-math.cos(abs(w_b*t))) + (V0y/abs(w_b))*math.sin(abs(w_b)*t) + y0
+    else:
+        particle.x = x0 + V0x*t
+        particle.y = UNIT_CHARGE*particle.q*fields[1]/2*particle.m * t**2 + V0y*t + y0
+        
+def recalculate_electric_particles_position(electric_particles, fields, t):
     """Пересчитывает координаты частиц.
     Параметры:
     **electric_particles** - список частиц, для которых нужно пересчитать координаты.
@@ -47,12 +43,8 @@ def recalculate_electric_particles_position(electric_particles, fields, dt):
     **dt** - шаг по времени
     """
 
-    for particles in electric_particles:
-        for particle in particles:
-            calculate_force(particle, electric_particles, fields)
-    for particles in electric_particles:
-        for particle in particles:
-            move_electric_particles(particle, dt)
+    for particle in electric_particles:
+        move_electric_particles(particle, fields, t)
 
 if __name__ == "__main__":
     print("This module is not for direct call!")
