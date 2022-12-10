@@ -1,73 +1,86 @@
 import pygame
-import numpy
-from vis import *
 from model import *
-from el_input import *
+from vis import *
+from button import *
+import user_data_proccesing as udp
 
-perform_execution = False
-"""Флаг цикличности выполнения расчёта"""
-
-physical_time = 0
-"""Физическое время от начала расчёта.
-Тип: float"""
-
-displayed_time = None
-"""Отображаемое на экране время.
-Тип: переменная pygame"""
-
-time_step = None
-"""Шаг по времени при моделировании.
-Тип: float"""
-
-electric_particles = []
-"""Список частиц."""
 
 def main():
-    """Главная функция главного модуля.
-    Создаёт оюъекты графического дизайна библиотеки pygame: окноб холст.
-    """
-    global electric_particles
-
-    electric_particles = read_electric_particle_data_from_file("one_particle.txt")
-    fields = [2e-7, 1e-6]
     
     pygame.init()
 
     FPS = 30
 
-    window_width = 800
-    """Ширина окна"""
-
-    window_height = 600
-    """Высота окна"""
-
     screen = pygame.display.set_mode((window_width, window_height))
     
+    font = pygame.font.SysFont('Arial', 15)
+    Button(screen, 400, 1, 75, 50, "Clear screen", font, udp.clear_screen)
+    Button(screen, 0, 1, 75, 50, "Add particle", font, udp.add_particle)
+    InputButton(screen, 650, 0, 75, 25, font, "1.Поле B: ")
+    InputButton(screen, 650, 26, 75, 25, font, "2.Поле E: ")
+    InputButton(screen, 80, 0, 75, 25, font, "a)Масса: ")
+    InputButton(screen, 80, 26, 75, 25, font, "б)Заряд: ")
+    InputButton(screen, 180, 0, 75, 25, font, "в)x0: ")
+    InputButton(screen, 180, 26, 75, 25, font, "г)y0: ")
+    InputButton(screen, 280, 0, 75, 25, font, "д)Vx0: ")
+    InputButton(screen, 280, 26, 75, 25, font, "е)Vy0: ")
+
+    calculate_scale_factor()
+
     pygame.display.update()
     clock = pygame.time.Clock()
     finished = False
     first_cycle = True
-
+    start_time = 0
+    
     while not finished:
-        if numpy.isnan(electric_particles[0][0].Fy):
-            finished = True
-            print("Yeee")
-        dt = clock.tick(FPS) / 1000.0
-        for event in pygame.event.get():
-            if event.type == True:
-                finished = True
+        clock.tick(FPS)
         if first_cycle:
-            for particles in electric_particles:
-                for particle in particles:
-                    create_particle_image(screen, particle)
+            screen.fill(WHITE)
+            print_text(screen, "Введите данные полей и частицы", 200, 270, 40)
+            pygame.display.update()
+            pygame.time.delay(3000)
+            screen.fill(WHITE)
             first_cycle = False
-        recalculate_electric_particles_position(electric_particles, fields, dt)
-        for particles in electric_particles:
-            for particle in particles:
-                update_particle_position(screen, particle)
+        udp.procces_user_data(user_data)
+        if udp.mistake:
+            print_text(screen, "Ошибка ввода!", 300, 250, 40)
+            pygame.display.update()
+            pygame.time.delay(3000)
+            screen.fill(WHITE)
+            for particle in udp.electric_particles:
+                particle.start_time += 3
+            udp.mistake = False
+        for event in pygame.event.get():
+            for inp in input_buttons:
+                inp.handle_event(event)
+            if event.type == pygame.QUIT:
+                finished = True
+        for obj in objects:
+            obj.process()
+        for inp in input_buttons:
+            inp.update()
+            inp.draw()
+        if udp.new_particle:
+            particle = udp.electric_particles[-1]
+            calculate_larmour_frequency(particle, udp.fields)
+            particle.start_time = pygame.time.get_ticks()/1000    
+            udp.new_particle = False
+        if udp.changed_fields:
+            for particle in udp.electric_particles:
+                calculate_larmour_frequency(particle, udp.fields)
+                particle.update(pygame.time.get_ticks()/1000)
+            udp.changed_fields = False
+        recalculate_electric_particles_position(udp.electric_particles, udp.fields, pygame.time.get_ticks()/1000)
+        for particle in udp.electric_particles:
+            update_particle_position(screen, particle)
+            draw_trajectory(screen, particle)
+        draw_coordinate_system(screen)
+        draw_sign_to_axes(screen)
+        print_text(screen, "Параметры", 540, 5, 25)
+        print_text(screen, "полей", 560, 30, 25)
         pygame.display.update()
-        screen.fill((0, 0, 0))
-        
+        screen.fill(WHITE)
     pygame.quit()
     
 if __name__ == "__main__":
