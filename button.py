@@ -1,13 +1,20 @@
+"""Модуль, содержит классы, описывающие кнопки и поля пользовательского ввода.  """
+
 import pygame
-from constants import*
+from constants import GRAY, BLUE, RED, BLACK
 
 objects = []
+"""Глобальная переменная, содержит все созданные кнопки.  """
+
 input_buttons = []
+"""Глобальная переменная, содержит все созданные поля для ввода.  """
+
 user_data = []
+"""Глобальная переменная, содержит информацию введённую через кнопки.  """
 
 
 class Button:
-    def __init__(self, screen, x, y, width, height, buttonText, font, onclickFunction=None, onePress=False):
+    def __init__(self, screen, x, y, width, height, buttonText, font, onclickFunction=None):
         """Конструктор класса Button
 
         Args:
@@ -28,7 +35,6 @@ class Button:
         self.width = width
         self.height = height
         self.onclickFunction = onclickFunction
-        self.onePress = onePress
         self.alreadyPressed = False
         self.fillColors = {
             'normal': GRAY,
@@ -65,6 +71,7 @@ class Button:
 class InputButton:
     def __init__(self, screen, x, y, width, height, font, name=''):
         """Конструктор класса InputButton
+
         Args:
         screen - холст для рисования.
         (x, y) - координаты кнопки.  

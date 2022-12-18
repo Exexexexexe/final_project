@@ -1,19 +1,30 @@
+"""Главный модуль. Вызывает функции создания графических обЪектов.
+Выполняет основной цикл программы.  
+"""
+
 import pygame
-from model import *
-from vis import *
-from button import *
+from model import calculate_larmour_frequency, recalculate_electric_particles_position
+from vis import calculate_scale_factor, print_text, update_particle_position, \
+draw_trajectory, draw_coordinate_system, window_width, window_height
+from button import objects, input_buttons, user_data, Button, InputButton
+from constants import WHITE
 import user_data_proccesing as udp
 
 
 def main():
+    """Главная функция главного модуля, в ней вызываются функции создания
+    графических объектов.
+    Выполняет основной цикл.  
+    """
     
     pygame.init()
 
     FPS = 30
 
     screen = pygame.display.set_mode((window_width, window_height))
-    
+
     font = pygame.font.SysFont('Arial', 15)
+    
     Button(screen, 400, 1, 75, 50, "Clear screen", font, udp.clear_screen)
     Button(screen, 0, 1, 75, 50, "Add particle", font, udp.add_particle)
     InputButton(screen, 650, 0, 75, 25, font, "1.Поле B: ")
@@ -76,7 +87,6 @@ def main():
             update_particle_position(screen, particle)
             draw_trajectory(screen, particle)
         draw_coordinate_system(screen)
-        draw_sign_to_axes(screen)
         print_text(screen, "Параметры", 540, 5, 25)
         print_text(screen, "полей", 560, 30, 25)
         pygame.display.update()
