@@ -106,6 +106,7 @@ def draw_coordinate_system(screen):
     pygame.draw.line(screen, BLACK, (20, window_height//2), (20, window_height//2-60), 2)
     pygame.draw.line(screen, BLACK, (15, window_height//2-55), (20, window_height//2-60), 2)
     pygame.draw.line(screen, BLACK, (25, window_height//2-55), (20, window_height//2-60), 2)
+    draw_sign_to_axes(screen)
 
 def draw_sign_to_axes(screen):
     """Рисует подписи по осями координат.

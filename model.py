@@ -2,9 +2,9 @@
 Вычисляет физические координаты частицы в каждый момент времени, в соответствие
 с уравнением движения.  
 """
+
 import math
 from constants import UNIT_CHARGE
-from vis import *
 
 def calculate_larmour_frequency(particle, fields):
     """Расчитывает ларморовскую частоту частицы в данном магнитном поле.  """
