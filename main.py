@@ -60,7 +60,7 @@ def main():
             pygame.time.delay(3000)
             screen.fill(WHITE)
             for particle in udp.electric_particles:
-                particle.start_time += 3
+                particle.start_time += 3  #  Обновляем начальное время частицы с учётом задержки
             udp.mistake = False
         for event in pygame.event.get():
             for inp in input_buttons:
@@ -73,7 +73,7 @@ def main():
             inp.update()
             inp.draw()
         if udp.new_particle:
-            particle = udp.electric_particles[-1]
+            particle = udp.electric_particles[-1]  #  Новая частица находится в конце массива
             calculate_larmour_frequency(particle, udp.fields)
             particle.start_time = pygame.time.get_ticks()/1000    
             udp.new_particle = False

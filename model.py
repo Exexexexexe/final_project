@@ -7,13 +7,21 @@ import math
 from constants import UNIT_CHARGE
 
 def calculate_larmour_frequency(particle, fields):
-    """Расчитывает ларморовскую частоту частицы в данном магнитном поле.  """
+    """Расчитывает ларморовскую частоту частицы в данном магнитном поле.
+    Args:
+    **particle** - частица, для которой нужно расчитать ларморовскую частоту.
+    **fields** - значения перпендикулярных электрических и магнитного полей в виде:
+    [Bz, Ey]
+    """
     particle.w_b = UNIT_CHARGE*particle.q*fields[0]/particle.m
         
 def move_electric_particles(particle, fields, t):
     """Перемещает частицу в соответствие с уравнением движения.
     Параметры:
-    **particle** - частицу, которую нужно 
+    **particle** - частицу, которую нужно переместить.
+    **fields** - значения перпендикулярных электрических и магнитного полей в виде:
+    [Bz, Ey]
+    **t** - время с начала запуска программы. 
     """
 
     if fields[0] != 0:
@@ -40,7 +48,7 @@ def recalculate_electric_particles_position(electric_particles, fields, t):
     **electric_particles** - список частиц, для которых нужно пересчитать координаты.
     **fields** - значения перпендикулярных электрических и магнитного полей в виде:
     [Bz, Ey]
-    **dt** - шаг по времени
+    **t** - время с начала запуска программы.  
     """
 
     for particle in electric_particles:

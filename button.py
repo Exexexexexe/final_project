@@ -10,7 +10,7 @@ input_buttons = []
 """Глобальная переменная, содержит все созданные поля для ввода.  """
 
 user_data = []
-"""Глобальная переменная, содержит информацию введённую через кнопки.  """
+"""Глобальная переменная, содержит информацию введённую пользователем через поля ввода.  """
 
 
 class Button:
@@ -18,7 +18,7 @@ class Button:
         """Конструктор класса Button
 
         Args:
-        (x, y) - координаты кнопки.  
+        (x, y) - координаты верхнего левого угла кнопки.  
         width - ширина кнопки.
         height - высота нопки.
         buttonText - текст кнопки.
@@ -44,13 +44,14 @@ class Button:
 
         self.buttonSurface = pygame.Surface((self.width, self.height))
         self.buttonRect = pygame.Rect(self.x, self.y, self.width, self.height)
-
         self.buttonSurf = font.render(buttonText, True, (20, 20, 20))
 
         objects.append(self)
 
     def process(self):
-        """Обрабатывает поведение мыши на экране.  """
+        """Обрабатывает поведение мыши на экране.
+        Рисует изображение кнопки.  
+        """
         mousePos = pygame.mouse.get_pos()
         self.buttonSurface.fill(self.fillColors['normal'])
         if self.buttonRect.collidepoint(mousePos):
@@ -82,6 +83,7 @@ class InputButton:
         """
 
         global input_buttons
+
         self.screen = screen
         self.rect = pygame.Rect(x, y, width, height)
         self.name = name
@@ -102,6 +104,7 @@ class InputButton:
         """
         
         global user_data
+
         if event.type == pygame.MOUSEBUTTONDOWN:
             if self.rect.collidepoint(event.pos):
                 self.active = True
@@ -126,6 +129,7 @@ class InputButton:
 
     def draw(self):
         """Рисует кнопку на экране.  """
+
         self.screen.blit(self.surface, (self.rect.x+5, self.rect.y+5))
         if self.active:
             pygame.draw.rect(self.screen, self.colors['active'], self.rect, 2)
